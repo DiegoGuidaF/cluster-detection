@@ -164,6 +164,6 @@ endfor
 Areas=temp(1:MaxNAreas,:);
 
 %Write output to file.
-csvwrite("areas.txt",[Areas,Nucleation,Expansion,Coalescence])
+csvwrite("DomainAnalisis.txt",[Areas,Nucleation,Expansion,Coalescence])
 
 
