@@ -5,9 +5,6 @@ graphics_toolkit('gnuplot')
 clear all
 close all
 
-
-%cd "../Images/XMCD_051/Original(Divided)/"
-
 %UI requesting the folder containing the images to process.
 dname = uigetdir(pwd, 'Select Directory containing images')
 files=dir(dname '/*.tif');
@@ -44,7 +41,7 @@ for k=1:numel(files)
      img=imread(files(k).name);
      [d f]= size(img);
      
-	 %Cut until 10% of image avg value (Flatten causes edges to blur)
+     %Cut until 10% of image avg value (Flatten causes edges to blur)
      %%Change to 1.5 if inverted. 0.5 if not.
      if double_domain %If image has a double domain, split them and process them.
         idxwhite= img > 40000;
@@ -60,8 +57,7 @@ for k=1:numel(files)
      endif
      thresh=0.1*mean(mean(img));
      
-	 %
-     %If upper border Found don't search for Bottom (same for left/right)
+     %Search for true image borders.
      UpperBorder=find(img(:,int16(f/2))>thresh,1,'first');
      BottBorder=find(img(:,int16(f/2))>thresh,1,'last');
      LeftBorder=find(img(int16(d/2),:)>thresh,1,'first');
@@ -69,15 +65,16 @@ for k=1:numel(files)
      %%Remove black borders from image
      img=img(UpperBorder:BottBorder,LeftBorder:RightBorder);
      %Make a mask with the exactly white pixels for later removal of them.
+     %If the image is inverted (Information is white and background is black):
      if inverted
        img=65535-img;
      endif  
      
-    %imshow(img)
-    %%%%%%%%%%%%%%%%%%%%%	Filters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %%%%%%%%%%%%%%%%%%%%%	Filters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%% Filters don't improve results because they mix noise with information.%%
-    %%%%%%% Better to remove it at the end with an erode/dilate process %%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%% Better to remove it at the end with an erode/dilate process          %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %Median filtering, check medfilt2 for more options
     if MedFilt
@@ -95,7 +92,7 @@ for k=1:numel(files)
        f_gauss = fspecial("gaussian", 9,GaussSpread);
        img=imfilter(img,f_gauss);
      endif
-       
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %The next process divides the image into a NBlockX x NBlockY mesh and
     %finds for each subimage the corresponding gray threshold.
      [r c]=size(img);
@@ -133,15 +130,11 @@ for k=1:numel(files)
      %
      %We remove addittional noise by removing objets with area less than N-pixels
      %Eliminates whites (So we use the ~ operand to invert the bits)
-     %imgbw=~(bwareaopen(~imgbw,MinClusterSize));
+     imgbw=~(bwareaopen(~imgbw,MinClusterSize));
      
-     %Finally we get the black area of each image
+     %Finally we can obtain the black area of each image
      %%A(k) = sum(sum(~imgbw))/(r*c-sum(sum(idxwhite)))*100;
-     %%imwrite(imgbw, ['Final/' files(k).name]);
-     %figure,  imshow(imgbw)
-     %imwrite(img, ['Equalized/Equal_' files(k).name]);
+     %Final black & white (Binary) image.
+     imwrite(imgbw, ['Final/' files(k).name]);
+     
 end  
-
-    %We save the black area of each image column-wise
-     %A=A';
-     %%save black_area.txt A
