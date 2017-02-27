@@ -1,5 +1,7 @@
 # cluster-detection
-Octave algorithm used for automatically detecting clusters in stacks of low-contrast images.
+[![View my LinkedIn Profile at https://es.linkedin.com/in/dgfguida] (https://static.licdn.com/scds/common/u/img/webpromo/btn_liprofile_blue_80x15.png)] (https://es.linkedin.com/pub/diego-guida-f%C3%B3rneas/109/531/781)
+
+Octave algorithms used for automatically detecting clusters in stacks of low-contrast images and tracking growth events such as Nucleation, Expansion and Coalescence.
 
 ## Binarization.m
 Algorithm used to detect clusters in a gray image. Clusters of information should have a higher level of intensity than background otherwise specify if the opposite is true by setting the parameter "inverted" to true.
